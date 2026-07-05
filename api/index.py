@@ -16,10 +16,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the saved model (assumes model is in the root directory)
-model_path = os.path.join(os.path.dirname(__file__), '..', 'trained_model.sav')
-loaded_model = pickle.load(open(model_path, 'rb'))
+# 1. Base route to check if backend is alive (Prevents Vercel 404 errors)
+@app.get("/")
+def read_root():
+    return {"status": "Healthy", "message": "Heart Disease Predictor API is running!"}
 
+# 2. Dynamic model path loading (Looks for 'trained_model.sav' in the same folder)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(CURRENT_DIR, "trained_model.sav")
+
+try:
+    with open(model_path, 'rb') as model_file:
+        loaded_model = pickle.load(model_file)
+except FileNotFoundError:
+    raise RuntimeError(f"Could not find model file at: {model_path}. Please check your file layout.")
+
+# 3. Input Data Schema
 class HeartData(BaseModel):
     age: float
     sex: float
@@ -35,6 +47,7 @@ class HeartData(BaseModel):
     ca: float
     thal: float
 
+# 4. Predict Route
 @app.post("/api/predict")
 def predict_heart_disease(data: HeartData):
     # Order matches the exact features used during training
