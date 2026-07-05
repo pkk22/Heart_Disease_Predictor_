@@ -23,7 +23,7 @@ def read_root():
 
 # 2. Dynamic model path loading (Looks for 'trained_model.sav' in the same folder)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(CURRENT_DIR, "trained_model.sav")
+model_path = os.path.join(CURRENT_DIR, "trained_model .sav")
 
 try:
     with open(model_path, 'rb') as model_file:
